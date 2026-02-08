@@ -1,0 +1,271 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .perspective-3d {
+        perspective: 2000px;
+    }
+
+    .card-3d-stack {
+        transform-style: preserve-3d;
+        perspective: 1000px;
+    }
+
+    .logo-placeholder {
+        width: auto;
+        height: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+        padding-top: 6px;
+    }
+}
+
+/* Custom Component Styles using Tailwind directives within CSS to access config if needed, 
+   but for now we stick to standard CSS with theme() or just classes in HTML. 
+   Here we handle complex overrides that are harder to do inline. */
+
+/* Light Mode Styles (Default or explicit .light class if we toggle that way, 
+   but Tailwind recommends base styles = light, dark: styles = dark.
+   However, our current CSS in HTML relies on parent selectors like .light or .dark directly.
+   We will adapt this to use Tailwind's @layer infrastructure or just standard CSS overrides.
+   
+   To keep it simple and consistent with the plan:
+   We will keep these specific classes but make them rely on the ".dark" class on HTML tag.
+*/
+
+/* Logo Placeholder Theming */
+.logo-placeholder {
+    /* Light Mode Default */
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.dark .logo-placeholder {
+    /* Dark Mode Override */
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+/* Glass Card Theming */
+.glass-card {
+    /* Light Mode Default */
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.06);
+}
+
+.dark .glass-card {
+    /* Dark Mode Override */
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+/* Text Glow (Dark Mode Only usually, but let's define both or just specific) */
+.text-glow {
+    text-shadow: 0 0 20px rgba(197, 160, 89, 0.2), 0 0 5px rgba(0, 0, 0, 0.05);
+}
+
+.dark .text-glow {
+    text-shadow: 0 0 30px rgba(197, 160, 89, 0.6), 0 0 10px rgba(255, 255, 255, 0.4);
+}
+
+/* Scrollbar styles if needed globally */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-track {
+    background: #0B1013;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+    background: #334155;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+/* Industry Modal Animations */
+.industry-content {
+    animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Modal Content Hover Effects */
+#industryModal .industry-content>div:first-child {
+    transition: transform 0.3s ease;
+}
+
+#industryModal .industry-content>div:first-child:hover {
+    transform: translateX(10px);
+}
+
+/* Smooth scrollbar for modal */
+#industryModal .overflow-y-auto {
+    scroll-behavior: smooth;
+}
+
+/* Button Shine Animation */
+@keyframes shine {
+    0% {
+        left: -100%;
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+
+    100% {
+        left: 200%;
+        opacity: 0;
+    }
+}
+
+.btn-shine-effect {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 50%;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.4) 50%, rgba(255, 255, 255, 0) 100%);
+    transform: skewX(-20deg);
+    animation: shine 3s infinite;
+    pointer-events: none;
+}
+
+/* Loader Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes progress {
+    from {
+        width: 0%;
+    }
+
+    to {
+        width: 100%;
+    }
+}
+
+@keyframes wave {
+
+    0%,
+    100% {
+        height: 20%;
+        opacity: 0.5;
+    }
+
+    50% {
+        height: 100%;
+        opacity: 1;
+        box-shadow: 0 0 15px #C5A059;
+    }
+}
+
+@keyframes slideUp {
+    to {
+        transform: translateY(-100%);
+    }
+}
+
+.animate-slide-up {
+    animation: slideUp 0.8s ease-in-out forwards;
+}
+
+/* Smooth Scrolling for the whole page */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Path to Success Animations */
+.success-stage.active-stage {
+    opacity: 1 !important;
+    filter: blur(0) !important;
+    transform: scale(1.1);
+    text-shadow: 0 0 20px rgba(197, 160, 89, 0.6);
+}
+
+.success-stage.active-stage h3 {
+    color: #C5A059;
+    /* Accent Gold */
+    background: linear-gradient(to right, #C5A059, #FDE68A, #C5A059);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+/* Success Final Stage Special Effect */
+.success-stage[data-index="5"].active-stage h3 {
+    text-shadow: 0 0 40px rgba(197, 160, 89, 0.8), 0 0 10px rgba(255, 255, 255, 0.8);
+    animation: pulseGold 2s infinite;
+}
+
+@keyframes pulseGold {
+
+    0%,
+    100% {
+        transform: scale(1);
+        filter: brightness(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+        filter: brightness(1.3);
+    }
+}

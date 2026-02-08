@@ -1,0 +1,56 @@
+
+// --- Service Modal Functions ---
+function openServiceModal(serviceId) {
+    const modal = document.getElementById('serviceModal');
+    const allContent = document.querySelectorAll('#serviceModal .service-content');
+    const targetContent = document.getElementById(`service-${serviceId}`);
+
+    // Hide all service content
+    allContent.forEach(content => content.classList.add('hidden'));
+
+    // Show target service content
+    if (targetContent) {
+        targetContent.classList.remove('hidden');
+    }
+
+    // Show modal with animation
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+
+    // Trigger animation
+    setTimeout(() => {
+        modal.style.opacity = '0';
+        modal.style.transform = 'scale(0.95)';
+        modal.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
+
+        requestAnimationFrame(() => {
+            modal.style.opacity = '1';
+            modal.style.transform = 'scale(1)';
+        });
+    }, 10);
+
+    // Prevent body scroll
+    document.body.style.overflow = 'hidden';
+}
+
+function closeServiceModal() {
+    const modal = document.getElementById('serviceModal');
+
+    // Animate out
+    modal.style.opacity = '0';
+    modal.style.transform = 'scale(0.95)';
+
+    setTimeout(() => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.style.overflow = '';
+    }, 300);
+}
+
+// Update Close modal on ESC key to include serviceModal
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeIndustryModal();
+        closeServiceModal();
+    }
+});
