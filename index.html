@@ -908,7 +908,7 @@
                                 class="absolute inset-0 bg-white/50 dark:bg-white/5 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-white/10 -z-10 shadow-2xl">
                             </div>
 
-                            <form id="mainContactForm" class="w-full p-8 md:p-12 space-y-6">
+                            <form id="contactForm" class="w-full p-8 md:p-12 space-y-6">
                                 <div class="grid md:grid-cols-2 gap-6">
                                     <div class="group relative">
                                         <div
@@ -916,7 +916,7 @@
                                             <span
                                                 class="material-symbols-outlined text-slate-500 text-sm group-focus-within:text-accent-gold transition-colors">person</span>
                                         </div>
-                                        <input id="contactName"
+                                        <input id="contactName" name="full_name"
                                             class="w-full bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 text-slate-900 dark:text-white placeholder-slate-500 focus:border-accent-gold/50 focus:ring-1 focus:ring-accent-gold/50 focus:bg-white/50 dark:focus:bg-black/40 transition-all font-mono text-sm"
                                             placeholder="FULL NAME" type="text" required />
                                     </div>
@@ -926,7 +926,7 @@
                                             <span
                                                 class="material-symbols-outlined text-slate-500 text-sm group-focus-within:text-accent-gold transition-colors">mail</span>
                                         </div>
-                                        <input id="contactEmail"
+                                        <input id="contactEmail" name="email_address"
                                             class="w-full bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 text-slate-900 dark:text-white placeholder-slate-500 focus:border-accent-gold/50 focus:ring-1 focus:ring-accent-gold/50 focus:bg-white/50 dark:focus:bg-black/40 transition-all font-mono text-sm"
                                             placeholder="EMAIL ADDRESS" type="email" pattern="[^@\s]+@[^@\s]+\.[^@\s]+"
                                             title="Please enter a valid email address (e.g. user@example.com)"
@@ -938,7 +938,7 @@
                                         <span
                                             class="material-symbols-outlined text-slate-500 text-sm group-focus-within:text-accent-gold transition-colors">call</span>
                                     </div>
-                                    <input id="contactPhone"
+                                    <input id="contactPhone" name="phone_number"
                                         class="w-full bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 text-slate-900 dark:text-white placeholder-slate-500 focus:border-accent-gold/50 focus:ring-1 focus:ring-accent-gold/50 focus:bg-white/50 dark:focus:bg-black/40 transition-all font-mono text-sm"
                                         placeholder="PHONE NUMBER (+971 ...)" type="tel" />
                                 </div>
@@ -947,7 +947,7 @@
                                         <span
                                             class="material-symbols-outlined text-slate-500 text-sm group-focus-within:text-accent-gold transition-colors">business</span>
                                     </div>
-                                    <input id="contactCompany"
+                                    <input id="contactCompany" name="company_name"
                                         class="w-full bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 text-slate-900 dark:text-white placeholder-slate-500 focus:border-accent-gold/50 focus:ring-1 focus:ring-accent-gold/50 focus:bg-white/50 dark:focus:bg-black/40 transition-all font-mono text-sm"
                                         placeholder="COMPANY NAME" type="text" />
                                 </div>
@@ -956,7 +956,7 @@
                                         <span
                                             class="material-symbols-outlined text-slate-500 text-sm group-focus-within:text-accent-gold transition-colors">topic</span>
                                     </div>
-                                    <input id="contactProject"
+                                    <input id="contactProject" name="project_interest"
                                         class="w-full bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 text-slate-900 dark:text-white placeholder-slate-500 focus:border-accent-gold/50 focus:ring-1 focus:ring-accent-gold/50 focus:bg-white/50 dark:focus:bg-black/40 transition-all font-mono text-sm"
                                         placeholder="PROJECT INTEREST" type="text" />
                                 </div>

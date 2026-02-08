@@ -583,13 +583,14 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // --- Supabase Integration ---
-// Note: REPLACE 'YOUR_SUPABASE_URL_HERE' with your actual Supabase Project URL
-const SUPABASE_URL = 'YOUR_SUPABASE_URL_HERE';
-const SUPABASE_ANON_KEY = 'sb_publishable_V6BPhOMhOj2-kIM58jqcqQ_TPLNgPmU'; // User provided key
+// CONFIGURATION: Update Supabase credentials here
+const SUPABASE_URL = "https://khqoziafbfgfaxvnwiyy.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_V6BPhOMhOj2-kIM58jqcqQ_TPLNgPmU";
 
-// Initialize Client (will fail without valid URL, so we wrap it or handle it)
+// Initialize Supabase Client
+// Ensure the Supabase JS library is loaded in your HTML (<script src=".../supabase-js"></script>)
 let supabaseClient = null;
-if (typeof supabase !== 'undefined' && SUPABASE_URL !== 'YOUR_SUPABASE_URL_HERE') {
+if (typeof supabase !== 'undefined') {
     try {
         supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     } catch (e) {
@@ -598,42 +599,43 @@ if (typeof supabase !== 'undefined' && SUPABASE_URL !== 'YOUR_SUPABASE_URL_HERE'
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const mainForm = document.getElementById('mainContactForm');
+    // Select the form by ID
+    const form = document.getElementById("contactForm");
 
-    if (mainForm) {
-        mainForm.addEventListener('submit', async (e) => {
-            e.preventDefault(); // Stop page refresh
+    if (form) {
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault(); // Prevent default page reload
 
-            // Collect Data
-            const formData = {
-                name: document.getElementById('contactName')?.value,
-                email: document.getElementById('contactEmail')?.value,
-                phone: document.getElementById('contactPhone')?.value,
-                company: document.getElementById('contactCompany')?.value,
-                interest: document.getElementById('contactProject')?.value,
-                submitted_at: new Date().toISOString()
+            // Collect form values
+            // Make sure these match the 'name' attributes in your HTML input fields
+            const payload = {
+                full_name: document.getElementById('contactName').value.trim(),
+                email_address: document.getElementById('contactEmail').value.trim(),
+                phone_number: document.getElementById('contactPhone').value.trim(),
+                company_name: document.getElementById('contactCompany').value.trim(),
+                project_interest: document.getElementById('contactProject').value.trim()
             };
 
-            console.log('Form Data Collected:', formData);
-
-            // Supabase Submission
+            // Insert into Supabase 'inquiries' table
+            // Ensure your table columns match these keys exactly: full_name, email_address, etc.
             if (supabaseClient) {
                 const { data, error } = await supabaseClient
-                    .from('leads') // Assuming table name 'leads'
-                    .insert([formData]);
+                    .from("inquiries")
+                    .insert([payload]);
 
+                // Handle Response
                 if (error) {
-                    console.error('Supabase Error:', error);
-                    alert('Error sending message: ' + error.message);
+                    console.error("Insert failed:", error);
+                    alert("Sorry, your message could not be sent. Try again.");
                 } else {
-                    console.log('Supabase Success:', data);
-                    alert('Message transmitted successfully. We will be in touch.');
-                    mainForm.reset();
+                    console.log("Insert succeeded:", data);
+                    // SUCCESS MESSAGE:
+                    alert("Your request has been sent to the team. We will contact you shortly.");
+                    form.reset(); // Clear the form
                 }
             } else {
-                console.warn('Supabase not initialized. Missing URL.');
-                alert('Simulation: Message received! (Supabase URL pending: Please provide Project URL)');
-                mainForm.reset();
+                console.error("Supabase client not initialized.");
+                alert("System Error: Database connection failed.");
             }
         });
     }
