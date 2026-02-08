@@ -576,8 +576,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Hide orb after it passes? Or let it zip off.
-        orb.style.opacity = '0';
-    }, 2200);
+        setTimeout(() => {
+            orb.style.opacity = '0';
+        }, 2200);
     }
 });
 
