@@ -576,11 +576,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Hide orb after it passes? Or let it zip off.
-        setTimeout(() => {
-            orb.style.opacity = '0';
-        }, 2200);
+        orb.style.opacity = '0';
+    }, 2200);
     }
-}
 });
 
 // --- Supabase Integration ---
