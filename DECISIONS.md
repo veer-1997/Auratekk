@@ -17,4 +17,5 @@
 
 ## 2026-02-08: Tailwind CSS Utilization
 - **Context:** Need for rapid styling and consistent design tokens.
-- **Decision:** Use Tailwind CSS via CDN for development speed, with a custom configuration inject in the `<head>`.\n- **Note:** For production, a build step to purge unused CSS would be ideal, but CDN is sufficient for current prototype phase.
+- **Decision:** Use Tailwind CSS via CDN for development speed, with a custom configuration inject in the `<head>`.
+- **Note:** For production, a build step to purge unused CSS would be ideal, but CDN is sufficient for current prototype phase.

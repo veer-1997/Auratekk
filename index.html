@@ -85,13 +85,16 @@
                 <nav
                     class="hidden lg:flex items-center gap-8 rounded-full bg-black/5 dark:bg-white/5 px-6 py-2 border border-black/5 dark:border-white/5 backdrop-blur-md shadow-lg">
                     <a class="font-mono text-[11px] font-bold text-slate-900 dark:text-white uppercase tracking-widest hover:text-accent-gold transition-colors"
-                        href="#">Showroom</a>
-                    <a class="font-mono text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest hover:text-slate-900 dark:text-white transition-colors"
-                        href="#">Ecosystem</a>
+                        href="index.html">Showroom</a>
+                    <a class="font-mono text-[11px] font-medium text-accent-gold uppercase tracking-widest hover:text-white transition-colors relative group flex items-center gap-1"
+                        href="ecosystem.html">
+                        Live Ecosystem <span
+                            class="material-symbols-outlined text-[10px] animate-pulse">radio_button_checked</span>
+                    </a>
                     <a class="font-mono text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest hover:text-slate-900 dark:text-white transition-colors"
                         href="#">Ventures</a>
                     <a class="font-mono text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest hover:text-slate-900 dark:text-white transition-colors"
-                        href="#">Connect</a>
+                        href="#contact">Connect</a>
                 </nav>
                 <div class="flex items-center gap-6">
                     <div class="hidden md:flex flex-col items-end border-r border-black/10 dark:border-white/10 pr-6">
@@ -916,7 +919,7 @@
                                             <span
                                                 class="material-symbols-outlined text-slate-500 text-sm group-focus-within:text-accent-gold transition-colors">person</span>
                                         </div>
-                                        <input id="contactName" name="full_name"
+                                        <input id="full_name" name="full_name"
                                             class="w-full bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 text-slate-900 dark:text-white placeholder-slate-500 focus:border-accent-gold/50 focus:ring-1 focus:ring-accent-gold/50 focus:bg-white/50 dark:focus:bg-black/40 transition-all font-mono text-sm"
                                             placeholder="FULL NAME" type="text" required />
                                     </div>
@@ -926,7 +929,7 @@
                                             <span
                                                 class="material-symbols-outlined text-slate-500 text-sm group-focus-within:text-accent-gold transition-colors">mail</span>
                                         </div>
-                                        <input id="contactEmail" name="email_address"
+                                        <input id="email_address" name="email_address"
                                             class="w-full bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 text-slate-900 dark:text-white placeholder-slate-500 focus:border-accent-gold/50 focus:ring-1 focus:ring-accent-gold/50 focus:bg-white/50 dark:focus:bg-black/40 transition-all font-mono text-sm"
                                             placeholder="EMAIL ADDRESS" type="email" pattern="[^@\s]+@[^@\s]+\.[^@\s]+"
                                             title="Please enter a valid email address (e.g. user@example.com)"
@@ -938,7 +941,7 @@
                                         <span
                                             class="material-symbols-outlined text-slate-500 text-sm group-focus-within:text-accent-gold transition-colors">call</span>
                                     </div>
-                                    <input id="contactPhone" name="phone_number"
+                                    <input id="phone_number" name="phone_number"
                                         class="w-full bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 text-slate-900 dark:text-white placeholder-slate-500 focus:border-accent-gold/50 focus:ring-1 focus:ring-accent-gold/50 focus:bg-white/50 dark:focus:bg-black/40 transition-all font-mono text-sm"
                                         placeholder="PHONE NUMBER (+971 ...)" type="tel" />
                                 </div>
@@ -947,7 +950,7 @@
                                         <span
                                             class="material-symbols-outlined text-slate-500 text-sm group-focus-within:text-accent-gold transition-colors">business</span>
                                     </div>
-                                    <input id="contactCompany" name="company_name"
+                                    <input id="company_name" name="company_name"
                                         class="w-full bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 text-slate-900 dark:text-white placeholder-slate-500 focus:border-accent-gold/50 focus:ring-1 focus:ring-accent-gold/50 focus:bg-white/50 dark:focus:bg-black/40 transition-all font-mono text-sm"
                                         placeholder="COMPANY NAME" type="text" />
                                 </div>
@@ -956,7 +959,7 @@
                                         <span
                                             class="material-symbols-outlined text-slate-500 text-sm group-focus-within:text-accent-gold transition-colors">topic</span>
                                     </div>
-                                    <input id="contactProject" name="project_interest"
+                                    <input id="project_interest" name="project_interest"
                                         class="w-full bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 text-slate-900 dark:text-white placeholder-slate-500 focus:border-accent-gold/50 focus:ring-1 focus:ring-accent-gold/50 focus:bg-white/50 dark:focus:bg-black/40 transition-all font-mono text-sm"
                                         placeholder="PROJECT INTEREST" type="text" />
                                 </div>
@@ -1478,13 +1481,13 @@
                 </p>
             </div>
 
-            <form class="space-y-4">
+            <form id="expertContactForm" class="space-y-4">
                 <div class="group relative">
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <span
                             class="material-symbols-outlined text-slate-500 text-sm group-focus-within:text-accent-gold transition-colors">person</span>
                     </div>
-                    <input
+                    <input id="expert_full_name"
                         class="w-full bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-xl py-3 pl-12 pr-4 text-slate-900 dark:text-white placeholder-slate-500 focus:border-accent-gold/50 focus:ring-1 focus:ring-accent-gold/50 focus:bg-white/50 dark:focus:bg-black/40 transition-all font-mono text-sm"
                         placeholder="FULL NAME" type="text" required />
                 </div>
@@ -1493,7 +1496,7 @@
                         <span
                             class="material-symbols-outlined text-slate-500 text-sm group-focus-within:text-accent-gold transition-colors">mail</span>
                     </div>
-                    <input
+                    <input id="expert_email_address"
                         class="w-full bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-xl py-3 pl-12 pr-4 text-slate-900 dark:text-white placeholder-slate-500 focus:border-accent-gold/50 focus:ring-1 focus:ring-accent-gold/50 focus:bg-white/50 dark:focus:bg-black/40 transition-all font-mono text-sm"
                         placeholder="EMAIL (@ ...)" type="email" pattern="[^@\s]+@[^@\s]+\.[^@\s]+" required />
                 </div>
@@ -1502,12 +1505,33 @@
                         <span
                             class="material-symbols-outlined text-slate-500 text-sm group-focus-within:text-accent-gold transition-colors">call</span>
                     </div>
-                    <input
+                    <input id="expert_phone_number"
                         class="w-full bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-xl py-3 pl-12 pr-4 text-slate-900 dark:text-white placeholder-slate-500 focus:border-accent-gold/50 focus:ring-1 focus:ring-accent-gold/50 focus:bg-white/50 dark:focus:bg-black/40 transition-all font-mono text-sm"
                         placeholder="PHONE (+971 ...)" type="tel" />
                 </div>
+                <!-- Added Company Name Field -->
+                <div class="group relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <span
+                            class="material-symbols-outlined text-slate-500 text-sm group-focus-within:text-accent-gold transition-colors">business</span>
+                    </div>
+                    <input id="expert_company_name"
+                        class="w-full bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-xl py-3 pl-12 pr-4 text-slate-900 dark:text-white placeholder-slate-500 focus:border-accent-gold/50 focus:ring-1 focus:ring-accent-gold/50 focus:bg-white/50 dark:focus:bg-black/40 transition-all font-mono text-sm"
+                        placeholder="COMPANY NAME" type="text" />
+                </div>
+                <!-- Added Project Interest Field -->
+                <div class="group relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <span
+                            class="material-symbols-outlined text-slate-500 text-sm group-focus-within:text-accent-gold transition-colors">topic</span>
+                    </div>
+                    <input id="expert_project_interest"
+                        class="w-full bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-xl py-3 pl-12 pr-4 text-slate-900 dark:text-white placeholder-slate-500 focus:border-accent-gold/50 focus:ring-1 focus:ring-accent-gold/50 focus:bg-white/50 dark:focus:bg-black/40 transition-all font-mono text-sm"
+                        placeholder="PROJECT INTEREST" type="text" />
+                </div>
+
                 <div class="pt-2">
-                    <button
+                    <button type="submit"
                         class="w-full relative px-6 py-4 bg-gradient-to-r from-accent-gold to-yellow-600 text-black font-display font-bold uppercase tracking-widest hover:shadow-neon hover:scale-[1.01] transition-all duration-300 rounded-xl overflow-hidden group">
                         <span class="relative z-10 flex items-center justify-center gap-3">
                             Submit Request <span
