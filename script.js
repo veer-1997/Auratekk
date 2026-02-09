@@ -609,11 +609,15 @@ document.addEventListener('DOMContentLoaded', () => {
             // Collect form values
             // Make sure these match the 'name' attributes in your HTML input fields
             const payload = {
-                full_name: document.getElementById('contactName').value.trim(),
-                email_address: document.getElementById('contactEmail').value.trim(),
-                phone_number: document.getElementById('contactPhone').value.trim(),
-                company_name: document.getElementById('contactCompany').value.trim(),
-                project_interest: document.getElementById('contactProject').value.trim()
+                full_name: document.getElementById('full_name').value.trim(),
+                // NOTE: 'email_address' column is missing in your Supabase 'inquiries' table. 
+                // Uncomment the line below once you add the column.
+                // email_address: document.getElementById('email_address').value.trim(),
+                phone_number: document.getElementById('phone_number').value.trim(),
+                company_name: document.getElementById('company_name').value.trim(),
+                // NOTE: 'project_interest' column is missing in your Supabase 'inquiries' table.
+                // Uncomment the line below once you add the column.
+                // project_interest: document.getElementById('project_interest').value.trim()
             };
 
             // Insert into Supabase 'inquiries' table
@@ -626,12 +630,60 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Handle Response
                 if (error) {
                     console.error("Insert failed:", error);
-                    alert("Sorry, your message could not be sent. Try again.");
+                    // Provide detailed error feedback
+                    let errorMessage = "Sorry, your message could not be sent. " + (error.message || "Unknown error");
+                    if (error.details) errorMessage += "\nDetails: " + error.details;
+
+                    alert(errorMessage);
                 } else {
                     console.log("Insert succeeded:", data);
                     // SUCCESS MESSAGE:
                     alert("Your request has been sent to the team. We will contact you shortly.");
                     form.reset(); // Clear the form
+                }
+            } else {
+                console.error("Supabase client not initialized.");
+                alert("System Error: Database connection failed.");
+            }
+        });
+    }
+    // --- Supabase Integration for 'Contact Expert' Modal ---
+    const expertForm = document.getElementById("expertContactForm");
+
+    if (expertForm) {
+        expertForm.addEventListener("submit", async (e) => {
+            e.preventDefault(); // Stop page refresh
+
+            // Collect form values from Expert Modal
+            const payload = {
+                full_name: document.getElementById('expert_full_name').value.trim(),
+                // NOTE: Uncomment when 'email_address' column exists
+                // email_address: document.getElementById('expert_email_address').value.trim(),
+                phone_number: document.getElementById('expert_phone_number').value.trim(),
+                company_name: document.getElementById('expert_company_name').value.trim(),
+                // NOTE: Uncomment when 'project_interest' column exists
+                // project_interest: document.getElementById('expert_project_interest').value.trim()
+            };
+
+            // Insert into Supabase
+            if (supabaseClient) {
+                const { data, error } = await supabaseClient
+                    .from("inquiries")
+                    .insert([payload]);
+
+                if (error) {
+                    console.error("Insert failed:", error);
+                    let errorMessage = "Sorry, your message could not be sent. " + (error.message || "Unknown error");
+                    if (error.details) errorMessage += "\nDetails: " + error.details;
+                    alert(errorMessage);
+                } else {
+                    console.log("Insert succeeded:", data);
+                    alert("Your request has been sent to the team. We will contact you shortly.");
+                    expertForm.reset();
+                    // Optional: Close the modal
+                    if (typeof closeContactModal === 'function') {
+                        closeContactModal();
+                    }
                 }
             } else {
                 console.error("Supabase client not initialized.");
