@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Lato:wght@300;400;700&display=swap');
+
+:root {
+    --color-gold: #D4AF37;
+    --color-bg: #050505;
+    --color-text: #e0e0e0;
+}
+
+body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: 'Lato', sans-serif;
+}
+
+.font-serif {
+    font-family: 'Cinzel', serif;
+}
+
+/* Smooth Scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 4px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #333;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-gold);
+}
+
+/* Selection */
+::selection {
+    background: var(--color-gold);
+    color: #000;
+}
+
+/* Text Reveal Animation Utility */
+.reveal-text-mask {
+    overflow: hidden;
+    position: relative;
+    display: inline-block;
+}
+
+.reveal-text-content {
+    display: inline-block;
+    transform: translateY(100%);
+    transition: transform 1s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.is-visible .reveal-text-content {
+    transform: translateY(0);
+}
