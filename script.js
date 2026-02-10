@@ -193,6 +193,27 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // Demo Carousel Navigation
+    const demoCarousel = document.getElementById('demo-carousel');
+    const scrollLeftBtn = document.getElementById('demo-scroll-left');
+    const scrollRightBtn = document.getElementById('demo-scroll-right');
+
+    if (demoCarousel && scrollLeftBtn && scrollRightBtn) {
+        scrollLeftBtn.addEventListener('click', () => {
+            demoCarousel.scrollBy({
+                left: -400,
+                behavior: 'smooth'
+            });
+        });
+
+        scrollRightBtn.addEventListener('click', () => {
+            demoCarousel.scrollBy({
+                left: 400,
+                behavior: 'smooth'
+            });
+        });
+    }
 });
 
 function initHeroScene() {
