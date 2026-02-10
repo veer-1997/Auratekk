@@ -81,6 +81,20 @@ document.addEventListener('DOMContentLoaded', () => {
         updateIcons(false);
     }
 
+
+
+    // --- Header Scroll Logic ---
+    const header = document.getElementById('main-header');
+    if (header) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 20) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+    }
+
     // --- 3D Hero Scene Implementation ---
     const heroScene = initHeroScene();
 
@@ -92,16 +106,27 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Loading Screen Logic ---
     const loader = document.getElementById('loader-overlay');
     if (loader) {
-        // Wait for animations to finish (approx 2.5s + buffer)
-        setTimeout(() => {
-            loader.classList.add('animate-slide-up');
-
-            // Remove from DOM after slide-up animation
+        // Check if intro has been shown in this session
+        if (sessionStorage.getItem('auratekk_intro_shown')) {
+            // Immediately remove loader if already shown
+            loader.style.display = 'none'; // Ensure it's hidden immediately
+            loader.remove();
+            document.body.classList.remove('overflow-hidden');
+        } else {
+            // First time visit in this session: Play animation
+            // Wait for animations to finish (approx 2.5s + buffer)
             setTimeout(() => {
-                loader.remove();
-                document.body.classList.remove('overflow-hidden');
-            }, 800);
-        }, 2800);
+                loader.classList.add('animate-slide-up');
+
+                // Remove from DOM after slide-up animation
+                setTimeout(() => {
+                    loader.remove();
+                    document.body.classList.remove('overflow-hidden');
+                    // Mark as shown for this session
+                    sessionStorage.setItem('auratekk_intro_shown', 'true');
+                }, 800);
+            }, 2800);
+        }
     }
 
     // Toggle Functionality
@@ -130,6 +155,44 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // --- Mobile Menu Logic ---
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenuClose = document.getElementById('mobile-menu-close');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileAccordionTriggers = document.querySelectorAll('.mobile-accordion-trigger');
+
+    if (mobileMenuBtn && mobileMenu) {
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.remove('translate-x-full');
+            document.body.classList.add('overflow-hidden');
+        });
+    }
+
+    if (mobileMenuClose && mobileMenu) {
+        mobileMenuClose.addEventListener('click', () => {
+            mobileMenu.classList.add('translate-x-full');
+            document.body.classList.remove('overflow-hidden');
+        });
+    }
+
+    // Mobile Accordion Logic
+    mobileAccordionTriggers.forEach(trigger => {
+        trigger.addEventListener('click', () => {
+            const content = trigger.nextElementSibling;
+            const icon = trigger.querySelector('.material-symbols-outlined');
+
+            // Toggle Hidden Class
+            content.classList.toggle('hidden');
+
+            // Rotate Icon
+            if (content.classList.contains('hidden')) {
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                icon.style.transform = 'rotate(180deg)';
+            }
+        });
+    });
 });
 
 function initHeroScene() {
@@ -367,9 +430,50 @@ function initHeroScene() {
     return { updateTheme };
 }
 
+// --- Generic Modal Functions ---
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+
+    // Trigger animation
+    setTimeout(() => {
+        modal.style.opacity = '0';
+        modal.style.transform = 'scale(0.95)';
+        modal.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
+
+        requestAnimationFrame(() => {
+            modal.style.opacity = '1';
+            modal.style.transform = 'scale(1)';
+        });
+    }, 10);
+
+    // Prevent body scroll
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+
+    // Animate out
+    modal.style.opacity = '0';
+    modal.style.transform = 'scale(0.95)';
+
+    setTimeout(() => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+
+        // Only reset overflow if no other modals are open (simple check)
+        // For now, we assume only one modal is open at a time for simplicity
+        document.body.style.overflow = '';
+    }, 300);
+}
+
 // --- Industry Modal Functions ---
 function openIndustryModal(industryId) {
-    const modal = document.getElementById('industryModal');
     const allContent = document.querySelectorAll('.industry-content');
     const targetContent = document.getElementById(`modal-${industryId}`);
 
@@ -381,38 +485,11 @@ function openIndustryModal(industryId) {
         targetContent.classList.remove('hidden');
     }
 
-    // Show modal with animation
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-
-    // Trigger animation
-    setTimeout(() => {
-        modal.style.opacity = '0';
-        modal.style.transform = 'scale(0.95)';
-        modal.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
-
-        requestAnimationFrame(() => {
-            modal.style.opacity = '1';
-            modal.style.transform = 'scale(1)';
-        });
-    }, 10);
-
-    // Prevent body scroll
-    document.body.style.overflow = 'hidden';
+    openModal('industryModal');
 }
 
 function closeIndustryModal() {
-    const modal = document.getElementById('industryModal');
-
-    // Animate out
-    modal.style.opacity = '0';
-    modal.style.transform = 'scale(0.95)';
-
-    setTimeout(() => {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-        document.body.style.overflow = '';
-    }, 300);
+    closeModal('industryModal');
 }
 
 // Close modal on ESC key
@@ -420,12 +497,12 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         closeIndustryModal();
         closeServiceModal();
+        closeContactModal();
     }
 });
 
 // --- Service Modal Functions ---
 function openServiceModal(serviceId) {
-    const modal = document.getElementById('serviceModal');
     const allContent = document.querySelectorAll('#serviceModal .service-content');
     const targetContent = document.getElementById(`service-${serviceId}`);
 
@@ -437,38 +514,11 @@ function openServiceModal(serviceId) {
         targetContent.classList.remove('hidden');
     }
 
-    // Show modal with animation
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-
-    // Trigger animation
-    setTimeout(() => {
-        modal.style.opacity = '0';
-        modal.style.transform = 'scale(0.95)';
-        modal.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
-
-        requestAnimationFrame(() => {
-            modal.style.opacity = '1';
-            modal.style.transform = 'scale(1)';
-        });
-    }, 10);
-
-    // Prevent body scroll
-    document.body.style.overflow = 'hidden';
+    openModal('serviceModal');
 }
 
 function closeServiceModal() {
-    const modal = document.getElementById('serviceModal');
-
-    // Animate out
-    modal.style.opacity = '0';
-    modal.style.transform = 'scale(0.95)';
-
-    setTimeout(() => {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-        document.body.style.overflow = '';
-    }, 300);
+    closeModal('serviceModal');
 }
 
 function navigateService(direction) {
@@ -504,23 +554,11 @@ function navigateService(direction) {
 
 // --- Contact Modal Logic ---
 function openContactModal() {
-    const modal = document.getElementById('contactModal');
-    if (!modal) return;
-
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-
-    document.body.style.overflow = 'hidden';
+    openModal('contactModal');
 }
 
 function closeContactModal() {
-    const modal = document.getElementById('contactModal');
-    if (!modal) return;
-
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
-
-    document.body.style.overflow = '';
+    closeModal('contactModal');
 }
 
 // --- Path to Success Animation ---
@@ -610,14 +648,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // Make sure these match the 'name' attributes in your HTML input fields
             const payload = {
                 full_name: document.getElementById('full_name').value.trim(),
-                // NOTE: 'email_address' column is missing in your Supabase 'inquiries' table. 
-                // Uncomment the line below once you add the column.
-                // email_address: document.getElementById('email_address').value.trim(),
+                email_address: document.getElementById('email_address').value.trim(),
                 phone_number: document.getElementById('phone_number').value.trim(),
                 company_name: document.getElementById('company_name').value.trim(),
-                // NOTE: 'project_interest' column is missing in your Supabase 'inquiries' table.
-                // Uncomment the line below once you add the column.
-                // project_interest: document.getElementById('project_interest').value.trim()
+                project_interest: document.getElementById('project_interest').value.trim()
             };
 
             // Insert into Supabase 'inquiries' table
@@ -657,12 +691,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // Collect form values from Expert Modal
             const payload = {
                 full_name: document.getElementById('expert_full_name').value.trim(),
-                // NOTE: Uncomment when 'email_address' column exists
-                // email_address: document.getElementById('expert_email_address').value.trim(),
+                email_address: document.getElementById('expert_email_address').value.trim(),
                 phone_number: document.getElementById('expert_phone_number').value.trim(),
                 company_name: document.getElementById('expert_company_name').value.trim(),
-                // NOTE: Uncomment when 'project_interest' column exists
-                // project_interest: document.getElementById('expert_project_interest').value.trim()
+                project_interest: document.getElementById('expert_project_interest').value.trim()
             };
 
             // Insert into Supabase

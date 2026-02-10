@@ -49,3 +49,34 @@ html {
     background: var(--color-gold);
     color: #000;
 }
+
+/* 3D Hero Utilities */
+.hero-perspective {
+    perspective: 1000px;
+    background: radial-gradient(circle at center, #1a1a1a 0%, #050505 100%);
+}
+
+.preserve-3d {
+    transform-style: preserve-3d;
+}
+
+.hero-layer {
+    will-change: transform;
+}
+
+.transform-style-3d {
+    transform-style: preserve-3d;
+}
+
+.hero-dish {
+    filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.6));
+    transition: filter 0.3s ease;
+    border-radius: 50%;
+    object-fit: contain;
+    /* mix-blend-mode removed to keep rich black slate */
+}
+
+.hero-dish-container {
+    transform-style: preserve-3d;
+    will-change: transform;
+}
