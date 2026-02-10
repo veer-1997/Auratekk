@@ -214,6 +214,75 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
+
+    // Custom Cursor Animation
+    function initCustomCursor() {
+        // Only on desktop devices
+        if (window.innerWidth <= 768) return;
+
+        // Create cursor elements
+        const cursor = document.createElement('div');
+        cursor.classList.add('custom-cursor');
+        const cursorDot = document.createElement('div');
+        cursorDot.classList.add('custom-cursor-dot');
+
+        document.body.appendChild(cursor);
+        document.body.appendChild(cursorDot);
+
+        let mouseX = 0, mouseY = 0;
+        let cursorX = 0, cursorY = 0;
+        let dotX = 0, dotY = 0;
+
+        // Track mouse position
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        // Smooth animation loop
+        function animate() {
+            // Smooth follow for outer ring
+            cursorX += (mouseX - cursorX) * 0.15;
+            cursorY += (mouseY - cursorY) * 0.15;
+
+            // Faster follow for inner dot
+            dotX += (mouseX - dotX) * 0.25;
+            dotY += (mouseY - dotY) * 0.25;
+
+            cursor.style.left = cursorX + 'px';
+            cursor.style.top = cursorY + 'px';
+            cursorDot.style.left = dotX + 'px';
+            cursorDot.style.top = dotY + 'px';
+
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // Add hover effects for interactive elements
+        const interactiveElements = document.querySelectorAll('a, button, .cursor-pointer, [onclick]');
+        interactiveElements.forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursor.classList.add('hover');
+                cursorDot.classList.add('hover');
+            });
+            el.addEventListener('mouseleave', () => {
+                cursor.classList.remove('hover');
+                cursorDot.classList.remove('hover');
+            });
+        });
+
+        // Hide cursor when leaving window
+        document.addEventListener('mouseleave', () => {
+            cursor.style.opacity = '0';
+            cursorDot.style.opacity = '0';
+        });
+        document.addEventListener('mouseenter', () => {
+            cursor.style.opacity = '1';
+            cursorDot.style.opacity = '0.8';
+        });
+    }
+
+    initCustomCursor();
 });
 
 function initHeroScene() {
