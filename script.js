@@ -501,55 +501,105 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// --- Service Modal Functions ---
+// --- Service Modal Functions (Dynamic) ---
 function openServiceModal(serviceId) {
-    const allContent = document.querySelectorAll('#serviceModal .service-content');
-    const targetContent = document.getElementById(`service-${serviceId}`);
-
-    // Hide all service content
-    allContent.forEach(content => content.classList.add('hidden'));
-
-    // Show target service content
-    if (targetContent) {
-        targetContent.classList.remove('hidden');
+    if (typeof serviceDetails === 'undefined') {
+        console.error("Service details payload not loaded");
+        return;
     }
 
-    openModal('serviceModal');
+    const modal = document.getElementById('service-modal');
+    const details = serviceDetails[serviceId];
+
+    if (!modal) {
+        console.error("Service modal element not found");
+        return;
+    }
+
+    if (!details) {
+        console.error("Details not found for service ID:", serviceId);
+        // Fallback or just return?
+        return;
+    }
+
+    // Populate Content
+    const title = details.title || 'Service Details';
+    const titleEl = document.getElementById('modal-title');
+    const titleMobileEl = document.getElementById('modal-title-mobile');
+    if (titleEl) titleEl.textContent = title;
+    if (titleMobileEl) titleMobileEl.textContent = title;
+
+    const descEl = document.getElementById('modal-description');
+    if (descEl) descEl.textContent = details.long_desc || '';
+
+    const quoteEl = document.getElementById('modal-quote');
+    if (quoteEl) quoteEl.textContent = details.quote || '';
+
+    // Image Handling
+    const imgEl = document.getElementById('modal-image');
+    if (imgEl && details.image) {
+        let prefix = '';
+        // Simple check for subdirectory
+        if (window.location.pathname.includes('/services/') || window.location.href.includes('/services/')) {
+            prefix = '../';
+        }
+        imgEl.src = `${prefix}assets/images/heroes/${details.image}`;
+    }
+
+    // Bullets
+    const bulletList = document.getElementById('modal-bullets');
+    if (bulletList) {
+        bulletList.innerHTML = ''; // Clear existing
+        if (details.bullets && Array.isArray(details.bullets)) {
+            details.bullets.forEach(bullet => {
+                const li = document.createElement('li');
+                li.className = "flex items-start gap-3";
+                li.innerHTML = `
+                    <span class="material-symbols-outlined text-accent-gold mt-1 text-sm">arrow_right_alt</span>
+                    <span class="text-slate-600 dark:text-slate-300 text-base">${bullet}</span>
+                `;
+                bulletList.appendChild(li);
+            });
+        }
+    }
+
+    // Show Modal
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+
+    // Animation
+    setTimeout(() => {
+        const backdrop = document.getElementById('modal-backdrop');
+        const content = document.getElementById('modal-content');
+
+        if (backdrop) backdrop.classList.remove('opacity-0');
+        if (content) {
+            content.classList.remove('opacity-0', 'scale-95');
+            content.classList.add('scale-100');
+        }
+    }, 10);
+
+    document.body.style.overflow = 'hidden';
 }
 
 function closeServiceModal() {
-    closeModal('serviceModal');
-}
+    const modal = document.getElementById('service-modal');
+    if (!modal) return;
 
-function navigateService(direction) {
-    const allContent = Array.from(document.querySelectorAll('#serviceModal .service-content'));
-    let currentIndex = allContent.findIndex(content => !content.classList.contains('hidden'));
+    const backdrop = document.getElementById('modal-backdrop');
+    const content = document.getElementById('modal-content');
 
-    if (currentIndex === -1) return; // Should not happen if modal is open
-
-    let newIndex;
-    if (direction === 'next') {
-        newIndex = (currentIndex + 1) % allContent.length;
-    } else {
-        newIndex = (currentIndex - 1 + allContent.length) % allContent.length;
+    if (backdrop) backdrop.classList.add('opacity-0');
+    if (content) {
+        content.classList.remove('scale-100');
+        content.classList.add('opacity-0', 'scale-95');
     }
 
-    // Hide current
-    allContent[currentIndex].classList.add('hidden');
-
-    // Show new
-    allContent[newIndex].classList.remove('hidden');
-
-    // Optional: Add a simple fade animation for the transition
-    const newContent = allContent[newIndex];
-    newContent.style.opacity = '0';
-    newContent.style.transform = 'translateX(' + (direction === 'next' ? '20px' : '-20px') + ')';
-
-    requestAnimationFrame(() => {
-        newContent.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-        newContent.style.opacity = '1';
-        newContent.style.transform = 'translateX(0)';
-    });
+    setTimeout(() => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.style.overflow = '';
+    }, 300);
 }
 
 // --- Contact Modal Logic ---
@@ -645,13 +695,11 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault(); // Prevent default page reload
 
             // Collect form values
-            // Make sure these match the 'name' attributes in your HTML input fields
+            // Only send fields that exist in Supabase table: full_name, phone_number, company_name
             const payload = {
                 full_name: document.getElementById('full_name').value.trim(),
-                email_address: document.getElementById('email_address').value.trim(),
                 phone_number: document.getElementById('phone_number').value.trim(),
-                company_name: document.getElementById('company_name').value.trim(),
-                project_interest: document.getElementById('project_interest').value.trim()
+                company_name: document.getElementById('company_name').value.trim()
             };
 
             // Insert into Supabase 'inquiries' table
@@ -689,12 +737,11 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault(); // Stop page refresh
 
             // Collect form values from Expert Modal
+            // Only send fields that exist in Supabase table: full_name, phone_number, company_name
             const payload = {
                 full_name: document.getElementById('expert_full_name').value.trim(),
-                email_address: document.getElementById('expert_email_address').value.trim(),
                 phone_number: document.getElementById('expert_phone_number').value.trim(),
-                company_name: document.getElementById('expert_company_name').value.trim(),
-                project_interest: document.getElementById('expert_project_interest').value.trim()
+                company_name: document.getElementById('expert_company_name').value.trim()
             };
 
             // Insert into Supabase

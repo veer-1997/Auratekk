@@ -1,7 +1,15 @@
 
 import os
 import re
+import json
 from content_data import content_data
+
+# Global payload dictionary to store detailed content for the frontend
+payload_data = {}
+
+def slugify(text):
+    """Converts a string into a slug suitable for IDs."""
+    return re.sub(r'[^a-z0-9-]', '', text.lower().replace(' ', '-'))
 
 # Read the template - we will use the index.html as base again to ensure
 # we have the latest navigation updates
@@ -27,6 +35,7 @@ def generate_populated_page(path, data):
     content = re.sub(r'src="AURATEKK_DARK.svg"', f'src="{prefix}AURATEKK_DARK.svg"', content)
     content = re.sub(r'src="AURATEKK_LIGHT.svg"', f'src="{prefix}AURATEKK_LIGHT.svg"', content)
     content = re.sub(r'href="index.html"', f'href="{prefix}index.html"', content)
+    content = re.sub(r'src="content_payload.js"', f'src="{prefix}content_payload.js"', content)
     
     # 2. Fix Navigation Links (Same logic as before)
     if depth > 0:
@@ -49,8 +58,15 @@ def generate_populated_page(path, data):
     for i, s in enumerate(services):
         # Staggered animation delay
         delay = 200 + (i * 100)
+        
+        # Generate ID and Store Details
+        service_id = slugify(s['title'])
+        if 'details' in s:
+            payload_data[service_id] = s['details']
+            payload_data[service_id]['title'] = s['title'] # Ensure title is available
+        
         services_html += f'''
-            <div class="group p-8 rounded-3xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:border-accent-gold/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-accent-gold/10 opacity-0 animate-[fadeInUp_0.8s_ease-out_{delay}ms_forwards]">
+            <div onclick="openServiceModal('{service_id}')" class="group cursor-pointer p-8 rounded-3xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:border-accent-gold/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-accent-gold/10 opacity-0 animate-[fadeInUp_0.8s_ease-out_{delay}ms_forwards]">
                 <div class="mb-6 w-12 h-12 rounded-2xl bg-accent-gold/10 flex items-center justify-center group-hover:bg-accent-gold group-hover:text-black transition-colors duration-300">
                      <span class="material-symbols-outlined text-accent-gold group-hover:text-black transition-colors">arrow_forward</span>
                 </div>
@@ -85,7 +101,7 @@ def generate_populated_page(path, data):
     new_main = f'''
         <main class="flex-1 pt-0">
             <!-- Hero Section -->
-            <section class="relative h-[60vh] min-h-[500px] flex items-center justify-center overflow-hidden">
+            <section class="relative h-[70vh] min-h-[650px] flex items-center justify-center overflow-hidden">
                 <!-- Background Image & Overlay -->
                 <div class="absolute inset-0 z-0 select-none">
                     <img src="{hero_image_path}" class="w-full h-full object-cover opacity-100 transition-transform duration-[20s] hover:scale-105 ease-linear transform-gpu animate-[kenburns_20s_infinite_alternate]" alt="{title} Background">
@@ -160,3 +176,9 @@ for path, data in content_data.items():
          os.makedirs('services', exist_ok=True)
          
     generate_populated_page(path, data)
+
+# Generate content_payload.js
+with open('content_payload.js', 'w') as f:
+    js_content = f"const serviceDetails = {json.dumps(payload_data, indent=4)};"
+    f.write(js_content)
+    print("Generated content_payload.js with detailed service data.")
