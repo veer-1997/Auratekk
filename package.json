@@ -1,0 +1,29 @@
+{
+  "name": "auratekk",
+  "version": "1.0.0",
+  "description": "",
+  "main": "content_payload.js",
+  "scripts": {
+    "build:css": "tailwindcss -i ./style.css -o ./dist/tailwind.min.css --minify",
+    "watch:css": "tailwindcss -i ./style.css -o ./dist/tailwind.min.css --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/veer-1997/auratekk.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/veer-1997/auratekk/issues"
+  },
+  "homepage": "https://github.com/veer-1997/auratekk#readme",
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.11",
+    "autoprefixer": "^10.4.24",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.1"
+  }
+}
