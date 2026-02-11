@@ -454,3 +454,11 @@ html {
 .dark #hubspot-form-wrapper .submitted-message {
     color: #4ade80;
 }
+
+/* Ensure form has height while loading */
+#hubspot-form-wrapper {
+    min-height: 570px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
