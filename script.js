@@ -692,130 +692,127 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// --- Supabase Integration ---
-// CONFIGURATION: Update Supabase credentials here
-const SUPABASE_URL = "https://khqoziafbfgfaxvnwiyy.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_V6BPhOMhOj2-kIM58jqcqQ_TPLNgPmU";
+// =========================================================================
+// --- Unified HubSpot Contact Form Integration ---
+// =========================================================================
 
-// Initialize Supabase Client
-// Ensure the Supabase JS library is loaded in your HTML (<script src=".../supabase-js"></script>)
-let supabaseClient = null;
-if (typeof supabase !== 'undefined') {
+/**
+ * Handles form submission directly to the HubSpot API.
+ * 
+ * @param {HTMLFormElement} formElement - The form DOM element being submitted.
+ * @param {HTMLElement} submitButton - The button to disable/animate during submission.
+ * @param {Array} fields - Array of objects { name: 'hubspot_field_name', value: 'user_input' }
+ */
+async function submitToHubSpot(formElement, submitButton, fields) {
+    const originalButtonText = submitButton.innerHTML;
+
+    // Show loading state
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<span class="relative z-10 flex items-center justify-center gap-3">Transmitting... <span class="material-symbols-outlined animate-spin">sync</span></span>';
+
+    // HubSpot Configuration
+    const portalId = '147786509';
+    const formId = 'fcbfa3f5-87e9-4947-beff-4a4e2faf7f6d';
+
+    // Construct Payload
+    const payload = {
+        fields: fields,
+        context: {
+            pageUri: window.location.href,
+            pageName: document.title
+        }
+    };
+
     try {
-        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    } catch (e) {
-        console.error('Supabase Initialization Error:', e);
+        const response = await fetch(`https://api.hsforms.com/submissions/v3/integration/submit/${portalId}/${formId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+            // Success
+            alert('✅ Transmission Successful! Our team has received your uplink request. We will contact you shortly.');
+            formElement.reset();
+
+            // If this was a modal, optinally close it after a delay?
+            // Checking if it's the expert form to close modal
+            if (formElement.id === 'expertContactForm' && typeof closeContactModal === 'function') {
+                closeContactModal();
+            }
+
+        } else {
+            // Error from HubSpot
+            const errorData = await response.json();
+            console.error('HubSpot Submission Error:', errorData);
+            alert('⚠️ Transmission Interrupted. Please check all fields and try again.');
+        }
+    } catch (error) {
+        console.error('Network Error:', error);
+        alert('❌ Network Error: Unable to reach secure server. Please check your connection.');
+    } finally {
+        // Restore button state
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalButtonText;
+        }
     }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Note: The previous #contactForm handler for Supabase has been removed
-    // to prevent conflict with the new HubSpot API handler.
 
-    // --- Supabase Integration for 'Contact Expert' Modal ---
-    const expertForm = document.getElementById("expertContactForm");
-
-    if (expertForm) {
-        expertForm.addEventListener("submit", async (e) => {
-            e.preventDefault(); // Stop page refresh
-
-            // Collect form values from Expert Modal
-            // Only send fields that exist in Supabase table: full_name, phone_number, company_name
-            const payload = {
-                full_name: document.getElementById('expert_full_name').value.trim(),
-                phone_number: document.getElementById('expert_phone_number').value.trim(),
-                company_name: document.getElementById('expert_company_name').value.trim()
-            };
-
-            // Insert into Supabase
-            if (supabaseClient) {
-                const { data, error } = await supabaseClient
-                    .from("inquiries")
-                    .insert([payload]);
-
-                if (error) {
-                    console.error("Insert failed:", error);
-                    let errorMessage = "Sorry, your message could not be sent. " + (error.message || "Unknown error");
-                    if (error.details) errorMessage += "\nDetails: " + error.details;
-                    alert(errorMessage);
-                } else {
-                    console.log("Insert succeeded:", data);
-                    alert("Your request has been sent to the team. We will contact you shortly.");
-                    expertForm.reset();
-                    // Optional: Close the modal
-                    if (typeof closeContactModal === 'function') {
-                        closeContactModal();
-                    }
-                }
-            } else {
-                console.error("Supabase client not initialized.");
-                alert("System Error: Database connection failed.");
-            }
-        });
-    }
-});
-
-// Custom Form Submission to HubSpot API
-document.addEventListener('DOMContentLoaded', () => {
+    // --- 1. Main Contact Form (#contactForm) ---
     const contactForm = document.getElementById('contactForm');
-
     if (contactForm) {
         contactForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            const submitButton = document.getElementById('submitButton') || contactForm.querySelector('button[type="submit"]');
 
-            const submitButton = document.getElementById('submitButton');
-            const originalButtonText = submitButton.innerHTML;
+            // Map fields for Main Form
+            const fields = [
+                { name: 'firstname', value: document.getElementById('firstname')?.value || '' },
+                { name: 'email', value: document.getElementById('email')?.value || '' },
+                { name: 'phone', value: document.getElementById('phone')?.value || '' },
+                { name: 'company', value: document.getElementById('company')?.value || '' },
+                { name: 'message', value: document.getElementById('message')?.value || '' }
+            ];
 
-            // Show loading state
-            submitButton.disabled = true;
-            submitButton.innerHTML = '<span class="relative z-10 flex items-center justify-center gap-3">Transmitting... <span class="material-symbols-outlined animate-spin">sync</span></span>';
+            await submitToHubSpot(contactForm, submitButton, fields);
+        });
+    }
 
-            // HubSpot Portal and Form IDs
-            const portalId = '147786509';
-            const formId = 'fcbfa3f5-87e9-4947-beff-4a4e2faf7f6d';
+    // --- 2. Expert Contact Form (Modal - #expertContactForm) ---
+    const expertForm = document.getElementById('expertContactForm');
+    if (expertForm) {
+        expertForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitButton = expertForm.querySelector('button[type="submit"]');
 
-            // Construct payload
-            const payload = {
-                fields: [
-                    { name: 'firstname', value: document.getElementById('firstname').value },
-                    { name: 'email', value: document.getElementById('email').value },
-                    { name: 'phone', value: document.getElementById('phone').value },
-                    { name: 'company', value: document.getElementById('company').value },
-                    { name: 'message', value: document.getElementById('message').value }
-                ],
-                context: {
-                    pageUri: window.location.href,
-                    pageName: document.title
-                }
-            };
+            // Collect values
+            const fullName = document.getElementById('expert_full_name')?.value || '';
+            const email = document.getElementById('expert_email_address')?.value || '';
+            const phone = document.getElementById('expert_phone_number')?.value || '';
+            const company = document.getElementById('expert_company_name')?.value || '';
+            const projectInterest = document.getElementById('expert_project_interest')?.value || '';
 
-            try {
-                const response = await fetch(`https://api.hsforms.com/submissions/v3/integration/submit/${portalId}/${formId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
+            // Construct Message from Project Interest to ensure it is captured
+            // HubSpot default form might not have a 'project_interest' field, so mapping to 'message' or custom field
+            // We'll map it to 'message' for now, potentially prefixing it.
+            const messageContent = projectInterest ? `Project Interest: ${projectInterest}` : 'Expert Consultation Request';
 
-                if (response.ok) {
-                    // Success
-                    alert('✅ Transmission Successful! Our team has received your uplink request.');
-                    contactForm.reset();
-                } else {
-                    // Error from HubSpot
-                    const errorData = await response.json();
-                    console.error('HubSpot Submission Error:', errorData);
-                    alert('⚠️ Transmission Interrupted. Please check all fields.');
-                }
-            } catch (error) {
-                console.error('Network Error:', error);
-                alert('❌ Network Error: Unable to reach secure server.');
-            } finally {
-                // Restore button state
-                submitButton.disabled = false;
-                submitButton.innerHTML = originalButtonText;
-            }
+            // Map fields for Expert Form
+            // Note: HubSpot field names must match internal names (firstname, email, phone, company, message)
+            const fields = [
+                { name: 'firstname', value: fullName },
+                { name: 'email', value: email },
+                { name: 'phone', value: phone },
+                { name: 'company', value: company },
+                { name: 'message', value: messageContent }
+            ];
+
+            await submitToHubSpot(expertForm, submitButton, fields);
         });
     }
 });
