@@ -808,8 +808,17 @@ function loadHubSpotForm() {
                 region: "eu1",
                 portalId: "147786509",
                 formId: "fcbfa3f5-87e9-4947-beff-4a4e2faf7f6d",
-                target: "#hubspotForm"
+                target: "#hubspotForm",
+                onFormReady: function () {
+                    // Alternative: remove loader if it was outside target
+                    const loader = document.querySelector('#hubspot-form-wrapper .animate-pulse');
+                    if (loader) loader.style.display = 'none';
+                }
             });
+
+            // Clear loading text immediately before render
+            const container = document.querySelector("#hubspotForm");
+            if (container) container.innerHTML = "";
         } else {
             console.error("hbspt object not found after script load");
         }

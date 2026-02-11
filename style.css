@@ -326,6 +326,7 @@ html {
         display: none;
     }
 }
+
 /* ===================================
    HubSpot Form Custom Styling
    =================================== */
@@ -461,4 +462,20 @@ html {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    position: relative;
+}
+
+/* Hide HubSpot Branding */
+iframe[src*="hsforms"]+div,
+.hs-form-frame+div,
+[id^="hbspt-form-"]>div:last-child {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+/* Hide Loading Text when Form is Present */
+#hubspotForm:not(:empty) .animate-pulse {
+    display: none;
 }
