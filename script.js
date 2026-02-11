@@ -709,48 +709,9 @@ if (typeof supabase !== 'undefined') {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Select the form by ID
-    const form = document.getElementById("contactForm");
+    // Note: The previous #contactForm handler for Supabase has been removed
+    // to prevent conflict with the new HubSpot API handler.
 
-    if (form) {
-        form.addEventListener("submit", async (e) => {
-            e.preventDefault(); // Prevent default page reload
-
-            // Collect form values
-            // Only send fields that exist in Supabase table: full_name, phone_number, company_name
-            const payload = {
-                full_name: document.getElementById('full_name').value.trim(),
-                phone_number: document.getElementById('phone_number').value.trim(),
-                company_name: document.getElementById('company_name').value.trim()
-            };
-
-            // Insert into Supabase 'inquiries' table
-            // Ensure your table columns match these keys exactly: full_name, email_address, etc.
-            if (supabaseClient) {
-                const { data, error } = await supabaseClient
-                    .from("inquiries")
-                    .insert([payload]);
-
-                // Handle Response
-                if (error) {
-                    console.error("Insert failed:", error);
-                    // Provide detailed error feedback
-                    let errorMessage = "Sorry, your message could not be sent. " + (error.message || "Unknown error");
-                    if (error.details) errorMessage += "\nDetails: " + error.details;
-
-                    alert(errorMessage);
-                } else {
-                    console.log("Insert succeeded:", data);
-                    // SUCCESS MESSAGE:
-                    alert("Your request has been sent to the team. We will contact you shortly.");
-                    form.reset(); // Clear the form
-                }
-            } else {
-                console.error("Supabase client not initialized.");
-                alert("System Error: Database connection failed.");
-            }
-        });
-    }
     // --- Supabase Integration for 'Contact Expert' Modal ---
     const expertForm = document.getElementById("expertContactForm");
 
@@ -794,137 +755,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// HubSpot Form Integration
-function loadHubSpotForm() {
-    const script = document.createElement('script');
-    script.src = "https://js.hsforms.net/forms/embed/v2.js";
-    script.charset = "utf-8";
-    script.type = "text/javascript";
-
-    script.onload = function () {
-        console.log("HubSpot script loaded successfully");
-        if (window.hbspt) {
-            window.hbspt.forms.create({
-                region: "eu1",
-                portalId: "147786509",
-                formId: "fcbfa3f5-87e9-4947-beff-4a4e2faf7f6d",
-                target: "#hubspotForm",
-                onFormReady: function () {
-                    // Alternative: remove loader if it was outside target
-                    const loader = document.querySelector('#hubspot-form-wrapper .animate-pulse');
-                    if (loader) loader.style.display = 'none';
-                }
-            });
-
-            // Clear loading text immediately before render
-            const container = document.querySelector("#hubspotForm");
-            if (container) container.innerHTML = "";
-        } else {
-            console.error("hbspt object not found after script load");
-        }
-    };
-
-    script.onerror = function () {
-        console.error("Failed to load HubSpot script");
-        const container = document.getElementById('hubspotForm');
-        if (container) {
-            container.innerHTML = '<p class="text-red-500 text-center">Unable to load form. Please disable ad blockers or refresh the page.</p>';
-        }
-    };
-
-    document.head.appendChild(script);
-}
-
-// Ensure loadHubSpotForm is called
-document.addEventListener('DOMContentLoaded', () => {
-    loadHubSpotForm();
-});
-
 // Custom Form Submission to HubSpot API
 document.addEventListener('DOMContentLoaded', () => {
     const contactForm = document.getElementById('contactForm');
-    
-    if (contactForm) {
-        contactForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const submitButton = document.getElementById('submitButton');
-            const originalButtonText = submitButton.innerHTML;
-            
-            // Show loading state
-            submitButton.disabled = true;
-            submitButton.innerHTML = '<span class="relative z-10 flex items-center justify-center gap-3">Transmitting... <span class="material-symbols-outlined animate-spin">sync</span></span>';
-            
-            // HubSpot Portal and Form IDs
-            const portalId = '147786509';
-            const formId = 'fcbfa3f5-87e9-4947-beff-4a4e2faf7f6d';
-            
-            // Construct payload
-            // Using standard HubSpot internal field names
-            const payload = {
-                fields: [
-                    { name: 'firstname', value: document.getElementById('firstname').value },
-                    { name: 'email', value: document.getElementById('email').value },
-                    { name: 'phone', value: document.getElementById('phone').value },
-                    { name: 'company', value: document.getElementById('company').value },
-                    { name: 'message', value: document.getElementById('message').value } // Mapping 'message' to custom field if needed, or TICKET.content
-                ],
-                context: {
-                    pageUri: window.location.href,
-                    pageName: document.title
-                }
-            };
-            
-            try {
-                const response = await fetch(`https://api.hsforms.com/submissions/v3/integration/submit/${portalId}/${formId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
-                
-                if (response.ok) {
-                    // Success
-                    alert('✅ Transmission Successful! Our team has received your uplink request.');
-                    contactForm.reset();
-                } else {
-                    // Error from HubSpot
-                    const errorData = await response.json();
-                    console.error('HubSpot Submission Error:', errorData);
-                    alert('⚠️ Transmission Interrupted. Please check your inputs and try again.');
-                }
-            } catch (error) {
-                console.error('Network Error:', error);
-                alert('❌ Network Error: Unable to reach secure server.');
-            } finally {
-                // Restore button state
-                submitButton.disabled = false;
-                submitButton.innerHTML = originalButtonText;
-            }
-        });
-    }
-});
 
-// Custom Form Submission to HubSpot API
-document.addEventListener('DOMContentLoaded', () => {
-    const contactForm = document.getElementById('contactForm');
-    
     if (contactForm) {
         contactForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const submitButton = document.getElementById('submitButton');
             const originalButtonText = submitButton.innerHTML;
-            
+
             // Show loading state
             submitButton.disabled = true;
             submitButton.innerHTML = '<span class="relative z-10 flex items-center justify-center gap-3">Transmitting... <span class="material-symbols-outlined animate-spin">sync</span></span>';
-            
+
             // HubSpot Portal and Form IDs
             const portalId = '147786509';
             const formId = 'fcbfa3f5-87e9-4947-beff-4a4e2faf7f6d';
-            
+
             // Construct payload
             const payload = {
                 fields: [
@@ -939,7 +788,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     pageName: document.title
                 }
             };
-            
+
             try {
                 const response = await fetch(`https://api.hsforms.com/submissions/v3/integration/submit/${portalId}/${formId}`, {
                     method: 'POST',
@@ -948,10 +797,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     },
                     body: JSON.stringify(payload)
                 });
-                
+
                 if (response.ok) {
                     // Success
-                    alert('✅ Transmission Successful! My sensors confirm delivery.');
+                    alert('✅ Transmission Successful! Our team has received your uplink request.');
                     contactForm.reset();
                 } else {
                     // Error from HubSpot
