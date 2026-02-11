@@ -905,3 +905,68 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// Custom Form Submission to HubSpot API
+document.addEventListener('DOMContentLoaded', () => {
+    const contactForm = document.getElementById('contactForm');
+    
+    if (contactForm) {
+        contactForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitButton = document.getElementById('submitButton');
+            const originalButtonText = submitButton.innerHTML;
+            
+            // Show loading state
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<span class="relative z-10 flex items-center justify-center gap-3">Transmitting... <span class="material-symbols-outlined animate-spin">sync</span></span>';
+            
+            // HubSpot Portal and Form IDs
+            const portalId = '147786509';
+            const formId = 'fcbfa3f5-87e9-4947-beff-4a4e2faf7f6d';
+            
+            // Construct payload
+            const payload = {
+                fields: [
+                    { name: 'firstname', value: document.getElementById('firstname').value },
+                    { name: 'email', value: document.getElementById('email').value },
+                    { name: 'phone', value: document.getElementById('phone').value },
+                    { name: 'company', value: document.getElementById('company').value },
+                    { name: 'message', value: document.getElementById('message').value }
+                ],
+                context: {
+                    pageUri: window.location.href,
+                    pageName: document.title
+                }
+            };
+            
+            try {
+                const response = await fetch(`https://api.hsforms.com/submissions/v3/integration/submit/${portalId}/${formId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (response.ok) {
+                    // Success
+                    alert('✅ Transmission Successful! My sensors confirm delivery.');
+                    contactForm.reset();
+                } else {
+                    // Error from HubSpot
+                    const errorData = await response.json();
+                    console.error('HubSpot Submission Error:', errorData);
+                    alert('⚠️ Transmission Interrupted. Please check all fields.');
+                }
+            } catch (error) {
+                console.error('Network Error:', error);
+                alert('❌ Network Error: Unable to reach secure server.');
+            } finally {
+                // Restore button state
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
+            }
+        });
+    }
+});
