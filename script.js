@@ -797,11 +797,11 @@ document.addEventListener('DOMContentLoaded', () => {
 // HubSpot Form Integration
 function loadHubSpotForm() {
     const script = document.createElement('script');
-    script.src = "//js-eu1.hsforms.net/forms/embed/v2.js";
+    script.src = "https://js.hsforms.net/forms/embed/v2.js";
     script.charset = "utf-8";
     script.type = "text/javascript";
-    
-    script.onload = function() {
+
+    script.onload = function () {
         console.log("HubSpot script loaded successfully");
         if (window.hbspt) {
             window.hbspt.forms.create({
@@ -815,7 +815,7 @@ function loadHubSpotForm() {
         }
     };
 
-    script.onerror = function() {
+    script.onerror = function () {
         console.error("Failed to load HubSpot script");
         const container = document.getElementById('hubspotForm');
         if (container) {
