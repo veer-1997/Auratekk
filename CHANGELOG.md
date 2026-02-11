@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-02-10
+### Added
+- **Content Population:** Generated professional content for all 31 subpages (Services, Industries, Company).
+- **Automated Content Script:** Created `populate_pages.py` and `content_data.py` data structure for scalable content management.
+- **Service Detail Templates:** Updated subpage layout to include specific "Key Services" and "Benefits" sections.
+
 ## [1.1.0] - 2026-02-09
 ### Added
 - **UI/UX Skill:** Installed `ui-ux-pro-max-skill` to `/skills` directory.
