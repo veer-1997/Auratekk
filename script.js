@@ -793,3 +793,40 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// HubSpot Form Integration
+function loadHubSpotForm() {
+    const script = document.createElement('script');
+    script.src = "//js-eu1.hsforms.net/forms/embed/v2.js";
+    script.charset = "utf-8";
+    script.type = "text/javascript";
+    
+    script.onload = function() {
+        console.log("HubSpot script loaded successfully");
+        if (window.hbspt) {
+            window.hbspt.forms.create({
+                region: "eu1",
+                portalId: "147786509",
+                formId: "fcbfa3f5-87e9-4947-beff-4a4e2faf7f6d",
+                target: "#hubspotForm"
+            });
+        } else {
+            console.error("hbspt object not found after script load");
+        }
+    };
+
+    script.onerror = function() {
+        console.error("Failed to load HubSpot script");
+        const container = document.getElementById('hubspotForm');
+        if (container) {
+            container.innerHTML = '<p class="text-red-500 text-center">Unable to load form. Please disable ad blockers or refresh the page.</p>';
+        }
+    };
+
+    document.head.appendChild(script);
+}
+
+// Ensure loadHubSpotForm is called
+document.addEventListener('DOMContentLoaded', () => {
+    loadHubSpotForm();
+});
