@@ -163,7 +163,7 @@ def generate_populated_page(path, data):
     content = re.sub(r'<main class="flex-1">.*?</main>', new_main, content, flags=re.DOTALL)
     
     # Update Title
-    content = re.sub(r'<title>.*?</title>', f'<title>{title} - Aura Tech</title>', content)
+    content = re.sub(r'<title>.*?</title>', f'<title>{title} | Auratekk (Aura Tech)</title>', content)
     
     # Write File
     with open(path, 'w') as f:

@@ -148,7 +148,7 @@ def generate_page(page_config):
     content = re.sub(r'<main class="flex-1">.*?</main>', new_main, content, flags=re.DOTALL)
     
     # 4. Update Title Tag
-    content = re.sub(r'<title>.*?</title>', f'<title>{title} - Aura Tech</title>', content)
+    content = re.sub(r'<title>.*?</title>', f'<title>{title} | Auratekk (Aura Tech)</title>', content)
     
     # 5. Write to file
     with open(path, 'w') as f:
