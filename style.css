@@ -326,3 +326,131 @@ html {
         display: none;
     }
 }
+/* ===================================
+   HubSpot Form Custom Styling
+   =================================== */
+
+#hubspot-form-wrapper .hs-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+#hubspot-form-wrapper .hs-form-field {
+    margin-bottom: 0;
+}
+
+#hubspot-form-wrapper .hs-input,
+#hubspot-form-wrapper select,
+#hubspot-form-wrapper textarea {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    color: #0f172a;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+}
+
+.dark #hubspot-form-wrapper .hs-input,
+.dark #hubspot-form-wrapper select,
+.dark #hubspot-form-wrapper textarea {
+    background: rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+#hubspot-form-wrapper .hs-input:focus,
+#hubspot-form-wrapper select:focus,
+#hubspot-form-wrapper textarea:focus {
+    border-color: rgba(197, 160, 89, 0.5);
+    box-shadow: 0 0 0 1px rgba(197, 160, 89, 0.5);
+    background: rgba(255, 255, 255, 0.5);
+    outline: none;
+}
+
+.dark #hubspot-form-wrapper .hs-input:focus,
+.dark #hubspot-form-wrapper select:focus,
+.dark #hubspot-form-wrapper textarea:focus {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+#hubspot-form-wrapper .hs-input::placeholder,
+#hubspot-form-wrapper textarea::placeholder {
+    color: rgb(100, 116, 139);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+#hubspot-form-wrapper .hs-button {
+    width: 100%;
+    padding: 1.25rem 2rem;
+    background: linear-gradient(to right, #C5A059, #eab308);
+    color: black;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-radius: 0.75rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+}
+
+#hubspot-form-wrapper .hs-button:hover {
+    transform: scale(1.01);
+    box-shadow: 0 0 15px rgba(197, 160, 89, 0.3), 0 0 30px rgba(197, 160, 89, 0.1);
+}
+
+#hubspot-form-wrapper .hs-error-msgs {
+    color: #dc2626;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+    list-style: none;
+    padding: 0;
+}
+
+#hubspot-form-wrapper .hs-error-msgs li label {
+    color: #dc2626;
+}
+
+#hubspot-form-wrapper .hs-form-required {
+    color: #dc2626;
+}
+
+#hubspot-form-wrapper label {
+    color: rgb(100, 116, 139);
+    font-size: 0.75rem;
+    font-family: 'Space Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.dark #hubspot-form-wrapper label {
+    color: rgb(148, 163, 184);
+}
+
+/* Grid layout for side-by-side fields */
+#hubspot-form-wrapper .hs-form-field {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Thank you message styling */
+#hubspot-form-wrapper .submitted-message {
+    text-align: center;
+    padding: 2rem;
+    color: #16a34a;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.125rem;
+}
+
+.dark #hubspot-form-wrapper .submitted-message {
+    color: #4ade80;
+}
