@@ -28,16 +28,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 3D Hero Scene Implementation ---
-    const heroScene = initHeroScene();
-
-    // Initial Theme Update for 3D Scene
-    if (heroScene) {
-        heroScene.updateTheme(html.classList.contains('dark'));
+    let heroScene;
+    try {
+        heroScene = initHeroScene();
+        // Initial Theme Update for 3D Scene
+        if (heroScene) {
+            heroScene.updateTheme(html.classList.contains('dark'));
+        }
+    } catch (error) {
+        console.error("Hero Scene Init Failed:", error);
     }
 
     // --- Loading Screen Logic ---
     const loader = document.getElementById('loader-overlay');
     if (loader) {
+        // Safety: Force remove after 8 seconds max
+        setTimeout(() => {
+            if (document.body.contains(loader)) {
+                loader.style.display = 'none';
+                loader.remove();
+                document.body.classList.remove('overflow-hidden');
+            }
+        }, 8000);
+
         // Check if intro has been shown in this session
         if (sessionStorage.getItem('auratekk_intro_shown')) {
             // Immediately remove loader if already shown
@@ -52,12 +65,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Remove from DOM after slide-up animation
                 setTimeout(() => {
-                    loader.remove();
-                    document.body.classList.remove('overflow-hidden');
-                    // Mark as shown for this session
-                    sessionStorage.setItem('auratekk_intro_shown', 'true');
+                    if (document.body.contains(loader)) {
+                        loader.remove();
+                        document.body.classList.remove('overflow-hidden');
+                        // Mark as shown for this session
+                        sessionStorage.setItem('auratekk_intro_shown', 'true');
+                    }
                 }, 800);
-            }, 2800);
+            }, 5000);
         }
     }
 
@@ -225,141 +240,123 @@ function initHeroScene() {
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    const clock = new THREE.Clock();
+
+    // Mouse tracking variables
+    let mouseX = 0, mouseY = 0, targetX = 0, targetY = 0;
 
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
     container.appendChild(renderer.domElement);
 
-    // --- Create a Root Group to shift everything to the RIGHT ---
-    const sceneRoot = new THREE.Group();
-    sceneRoot.position.x = 5; // Positive X moves objects to the right
-    scene.add(sceneRoot);
+    // --- Aurora Particle System ---
+    const particlesGroup = new THREE.Group();
+    scene.add(particlesGroup);
 
-    // Particle Network
-    const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCount = 700;
+    let particlesMesh = null;
 
-    const posArray = new Float32Array(particlesCount * 3);
+    // Configuration
+    const particleCount = 3000;
+    const spreadX = 50; // Width of the aurora
+    const colorDark = 0xC5A059; // Gold
+    const colorLight = 0xB08D55; // Bronze
 
-    for (let i = 0; i < particlesCount * 3; i++) {
-        // Spread particles in a large sphere/cloud
-        posArray[i] = (Math.random() - 0.5) * 15; // Spread range
+    // Create Geometry
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(particleCount * 3);
+    const originalPositions = new Float32Array(particleCount * 3); // Store for wave calc
+    const scales = new Float32Array(particleCount);
+    const randomness = new Float32Array(particleCount * 3); // Individual particle drift
+
+    for (let i = 0; i < particleCount; i++) {
+        const i3 = i * 3;
+
+        // X: Spread wide (-25 to 25)
+        const x = (Math.random() - 0.5) * spreadX;
+
+        // Y & Z: Condensed circle / Cylinder shape following a curve
+        // We want a "ship" or "circle" feel, so let's make a toroid slice or cylinder
+        const radius = 4 + Math.random() * 2; // Base radius of the "tube"
+        const angle = (x / spreadX) * Math.PI * 2; // Twist along the length
+
+        // Condensed circle vertically
+        const ringAngle = Math.random() * Math.PI * 2;
+        const ringRadius = 1.5 + Math.random(); // Thickness of the aurora band
+
+        // Base Position (condensed circle flowing in a line)
+        // A sine wave path for the "ship"
+        const curveY = Math.sin(x * 0.2) * 2;
+        const curveZ = Math.cos(x * 0.2) * 2;
+
+        const y = curveY + Math.sin(ringAngle) * ringRadius;
+        const z = curveZ + Math.cos(ringAngle) * ringRadius;
+
+        positions[i3] = x;
+        positions[i3 + 1] = y;
+        positions[i3 + 2] = z;
+
+        // Store original for animation reference
+        originalPositions[i3] = x;
+        originalPositions[i3 + 1] = y;
+        originalPositions[i3 + 2] = z;
+
+        // Random scale for twinkling
+        scales[i] = Math.random();
+
+        // Random drift parameters
+        randomness[i3] = Math.random();
+        randomness[i3 + 1] = Math.random();
+        randomness[i3 + 2] = Math.random();
     }
 
-    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('originalPosition', new THREE.BufferAttribute(originalPositions, 3));
+    geometry.setAttribute('aScale', new THREE.BufferAttribute(scales, 1));
+    geometry.setAttribute('aRandom', new THREE.BufferAttribute(randomness, 3));
+
+    // Create circular particle texture
+    const canvas = document.createElement('canvas');
+    canvas.width = 32;
+    canvas.height = 32;
+    const ctx = canvas.getContext('2d');
+
+    // Draw a radial gradient circle
+    const gradient = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.5)');
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 32, 32);
+
+    const texture = new THREE.CanvasTexture(canvas);
 
     // Material
-    const particlesMaterial = new THREE.PointsMaterial({
-        size: 0.03,
-        color: 0xC5A059, // Accent Gold
+    const material = new THREE.PointsMaterial({
+        size: 0.08,
+        color: document.documentElement.classList.contains('dark') ? colorDark : colorLight,
         transparent: true,
-        opacity: 0.8,
+        opacity: 0.6,
+        sizeAttenuation: true,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        map: texture
     });
 
-    // Create Mesh
-    const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-    sceneRoot.add(particlesMesh);
+    particlesMesh = new THREE.Points(geometry, material);
+    particlesGroup.add(particlesMesh);
 
-    // Connecting Lines (Optional for "Network" feel - basic implementation)
-    // For performance, we might simulate connection via visual density or use a LineSegments
-    // Let's create a secondary geometric shape (Icosahedron wireframe) to represent "Structure"
-    const geoGeometry = new THREE.IcosahedronGeometry(4, 1);
-    const geoMaterial = new THREE.MeshBasicMaterial({
-        color: 0x13a4ec, // Primary Blue
-        wireframe: true,
-        transparent: true,
-        opacity: 0.15
-    });
-    const geoMesh = new THREE.Mesh(geoGeometry, geoMaterial);
-    sceneRoot.add(geoMesh);
+    // Slight tilt to face camera better
+    particlesGroup.rotation.z = 0.2;
+    particlesGroup.rotation.x = 0.1;
 
-    // --- Diverse Elements ---
-    const shapesGroup = new THREE.Group();
-    sceneRoot.add(shapesGroup);
-
-    const geometries = [
-        new THREE.TorusGeometry(0.6, 0.05, 16, 100), // Ring 1
-        new THREE.TorusGeometry(0.4, 0.02, 16, 100), // Ring 2 (thinner)
-        new THREE.TorusGeometry(0.8, 0.03, 16, 100)  // Ring 3 (larger)
-    ];
-
-    const materials = [
-        new THREE.MeshBasicMaterial({ color: 0x13a4ec, wireframe: true, transparent: true, opacity: 0.3 }),
-        new THREE.MeshBasicMaterial({ color: 0xC5A059, wireframe: true, transparent: true, opacity: 0.3 }),
-        new THREE.MeshBasicMaterial({ color: 0xFFFFFF, wireframe: true, transparent: true, opacity: 0.1 })
-    ];
-
-    for (let i = 0; i < 15; i++) {
-        const geometry = geometries[Math.floor(Math.random() * geometries.length)];
-        const material = materials[Math.floor(Math.random() * materials.length)];
-        const mesh = new THREE.Mesh(geometry, material);
-
-        // Random position spread
-        mesh.position.x = (Math.random() - 0.5) * 30;
-        mesh.position.y = (Math.random() - 0.5) * 20;
-        mesh.position.z = (Math.random() - 0.5) * 15;
-
-        // Random rotation
-        mesh.rotation.x = Math.random() * Math.PI;
-        mesh.rotation.y = Math.random() * Math.PI;
-
-        // Add custom float data
-        mesh.userData = {
-            floatSpeed: 0.005 + Math.random() * 0.01,
-            rotationSpeed: 0.005 + Math.random() * 0.01
-        };
-
-        shapesGroup.add(mesh);
-    }
-
-    // --- SVG Background Elements ---
-    const textureLoader = new THREE.TextureLoader();
-
-    // Helper to create floating SVG plane
-    const createSVGPlane = (path, size, x, y, z, floatSpeed, rotSpeed) => {
-        textureLoader.load(path, (texture) => {
-            const geometry = new THREE.PlaneGeometry(size, size);
-            const material = new THREE.MeshBasicMaterial({
-                map: texture,
-                transparent: true,
-                opacity: 1.0, // Full opacity
-                side: THREE.DoubleSide,
-                depthWrite: false // Don't block other objects behind
-            });
-            const mesh = new THREE.Mesh(geometry, material);
-
-            // Adjust Z to be visible
-            mesh.position.set(x, y, z);
-            mesh.userData = {
-                originalY: y,
-                floatSpeed: floatSpeed,
-                rotSpeed: rotSpeed,
-                randomOffset: Math.random() * 100
-            };
-
-            sceneRoot.add(mesh); // Add to shifted root
-            svgMeshes.push(mesh);
-        });
-    };
-
-    const svgMeshes = [];
-
-    // Add ore_dark.SVG (Background Element 1)
-    createSVGPlane('ore_dark.SVG', 8, 2, 4, -4, 0.4, 0.001);
-
-    // Add Artech_I.SVG (Background Element 2)
-    createSVGPlane('Artech_I.SVG', 7, 5, -5, -6, 0.6, -0.002);
 
     // Camera Position
-    camera.position.z = 10;
+    camera.position.z = 8;
     camera.position.y = 0;
 
     // Mouse Interaction
-    let mouseX = 0;
-    let mouseY = 0;
-    let targetX = 0;
-    let targetY = 0;
-
+    const mouse = new THREE.Vector2();
     const windowHalfX = window.innerWidth / 2;
     const windowHalfY = window.innerHeight / 2;
 
@@ -369,42 +366,47 @@ function initHeroScene() {
     });
 
     // Animation Loop
-    const clock = new THREE.Clock();
-
     const animate = () => {
         requestAnimationFrame(animate);
-        const elapsedTime = clock.getElapsedTime();
 
+        if (particlesMesh) {
+            const time = clock.getElapsedTime() * 0.5;
+            const positions = particlesMesh.geometry.attributes.position.array;
+            const originalPositions = particlesMesh.geometry.attributes.originalPosition.array;
+            // const randomness = particlesMesh.geometry.attributes.aRandom.array;
+
+            for (let i = 0; i < particleCount; i++) {
+                const i3 = i * 3;
+                const ox = originalPositions[i3];
+                const oy = originalPositions[i3 + 1];
+                const oz = originalPositions[i3 + 2];
+
+                // Aurora Wave Effect
+                // We displace Y and Z based on X and Time
+
+                // Macroscopic Wave (The whole "ship" moves)
+                const macroWave = Math.sin(ox * 0.3 + time) * 0.5;
+
+                // Micro Ripples (Individual strands)
+                const microWave = Math.sin(ox * 1.5 + time * 2) * 0.2;
+
+                positions[i3 + 1] = oy + macroWave + microWave;
+                positions[i3 + 2] = oz + Math.cos(ox * 0.3 + time) * 0.5;
+            }
+
+            particlesMesh.geometry.attributes.position.needsUpdate = true;
+
+            // Gentle group rotation for parallax feel
+            particlesGroup.rotation.y = Math.sin(time * 0.1) * 0.1;
+        }
+
+        // Mouse interaction for parallax (scene root rotation)
         targetX = mouseX * 0.0005;
         targetY = mouseY * 0.0005;
 
-        // Smooth rotation based on mouse - Rotate the ROOT group for parallax
-        sceneRoot.rotation.y += 0.02 * (targetX - sceneRoot.rotation.y);
-        sceneRoot.rotation.x += 0.02 * (targetY - sceneRoot.rotation.x);
-
-        // Individual element rotations
-        particlesMesh.rotation.y += 0.001;
-        geoMesh.rotation.x -= 0.001;
-        geoMesh.rotation.y -= 0.001;
-
-        // Animate shapes
-        shapesGroup.children.forEach(mesh => {
-            mesh.rotation.x += mesh.userData.rotationSpeed;
-            mesh.rotation.y += mesh.userData.rotationSpeed;
-            mesh.position.y += Math.sin(elapsedTime * mesh.userData.floatSpeed) * 0.02;
-        });
-
-        // Animate SVG planes
-        svgMeshes.forEach(mesh => {
-            // Gentle float
-            mesh.position.y = mesh.userData.originalY + Math.sin(elapsedTime * mesh.userData.floatSpeed + mesh.userData.randomOffset) * 0.5;
-            // Gentle rotation
-            mesh.rotation.z += mesh.userData.rotSpeed;
-        });
-
-        // Pulse effect for geometry
-        const scale = 1 + Math.sin(elapsedTime * 0.5) * 0.05;
-        geoMesh.scale.set(scale, scale, scale);
+        // Smooth rotation based on mouse - Rotate the particle group for parallax
+        particlesGroup.rotation.y += 0.02 * (targetX - particlesGroup.rotation.y);
+        particlesGroup.rotation.x += 0.02 * (targetY - particlesGroup.rotation.x);
 
         renderer.render(scene, camera);
     };
@@ -420,32 +422,18 @@ function initHeroScene() {
 
     // --- Theme Update Logic ---
     function updateTheme(isDark) {
+        if (!particlesMesh) return;
+
         if (isDark) {
-            // Dark Mode Colors
-            particlesMaterial.color.setHex(0xC5A059); // Gold
-            particlesMaterial.opacity = 0.8;
-
-            geoMaterial.color.setHex(0x13a4ec); // Blue
-            geoMaterial.opacity = 0.15;
-
-            materials[0].color.setHex(0x13a4ec); // Blue
-            materials[1].color.setHex(0xC5A059); // Gold
-            materials[2].color.setHex(0xFFFFFF); // White
-            materials[2].opacity = 0.1;
-
-            scene.fog = null; // No fog or clear fog
+            // Dark Mode
+            particlesMesh.material.color.setHex(0xC5A059); // Gold
+            particlesMesh.material.opacity = 0.8;
+            renderer.setClearColor(0x000000, 0); // Transparent
         } else {
-            // Light Mode Colors - High Contrast
-            particlesMaterial.color.setHex(0xB08D55); // Darker Gold
-            particlesMaterial.opacity = 0.9;
-
-            geoMaterial.color.setHex(0x0F8BC7); // Darker Blue
-            geoMaterial.opacity = 0.3; // More visible
-
-            materials[0].color.setHex(0x0F8BC7); // Darker Blue
-            materials[1].color.setHex(0xB08D55); // Darker Gold
-            materials[2].color.setHex(0x1a1a1a); // Almost Black (replacing White)
-            materials[2].opacity = 0.2; // Increase opacity
+            // Light Mode
+            particlesMesh.material.color.setHex(0xB08D55); // Darker Gold/Bronze
+            particlesMesh.material.opacity = 0.9;
+            renderer.setClearColor(0x000000, 0);
         }
     }
 
